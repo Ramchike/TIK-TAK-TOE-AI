@@ -1,5 +1,7 @@
-# Функция для структурного разбора поля на: Диагонали, строки, поля
 def get_matrix_headers(matrix):
+    """
+    Функция для структурного разбора поля на: Диагонали, строки, поля
+    """
     return (
         # ДИАГОНАЛИ
         (matrix[0][0], matrix[1][1], matrix[2][2]), # Главная диагональ
@@ -16,8 +18,10 @@ def get_matrix_headers(matrix):
         (matrix[0][2], matrix[1][2], matrix[2][2]) # 3 столбец
     )
 
-# Функция для ввода поля
 def matrix_input():
+    """
+    Функция для ввода игрового поля
+    """
     matrix = [] # массив где будет храниться поле
     # Ввод поля при помощи цикла
     for i in range(3):
@@ -29,29 +33,32 @@ def matrix_input():
     # Вывод поля при помощи цикла
     for line in matrix:
         print(*line)
-    print()
     return matrix
 
-# Функция проверки победителя
-def is_win(matrix, player):
+def is_win(matrix, player) -> bool:
+    """
+    Функция проверки победы Игрока/Компьютера
+
+    Ключи возврата:
+        Если победил игрок возвращает 1
+        Если победил компьютер возвращает -1
+        Если в данный момент никто не победил возвращает 0
+    """
     if player == 'X':
-        STREAK_PL = list("XXX")
-        STREAK_AI = list("OOO")
+        STREAK = tuple("XXX")
     else:
-        STREAK_PL = list("OOO")
-        STREAK_AI = list("XXX")
+        STREAK= tuple("OOO")
 
-    matrix_headers = get_matrix_headers(matrix)
+    return STREAK in get_matrix_headers(matrix)
 
-    if STREAK_AI in matrix_headers:
-        return -1 # Победа противника
-    elif STREAK_PL in matrix_headers:
-        return 1 # Победа игрока
-    else:
-        return 0 # Нет результата
-
-# Функция генерации массива с возможными ходами
+def is_full(matrix):
+    return '?' not in matrix
 def check_moves(matrix):
+    """
+
+    :param matrix:
+    :return:
+    """
     moves = [] # создаем массив, где будут все возможные ходы
     for i in range(3): # проходимся циклом по стобцам
         for j in range(3): # проходимся циклом по строкам
@@ -61,45 +68,63 @@ def check_moves(matrix):
 
 # Функция выполнения хода
 def make_move(matrix, move, player):
+    """
+    Функция выполнения хода
+    """
     i, j = move
     matrix[i][j] = player
 
 # Функция отмена хода
 def undo_move(matrix, move):
+    """
+    Функция отмены хода
+    """
     i, j = move # из кортежа вытаскиваем координаты в переменные
     matrix[i][j] = '?' # заменяем X/O на неизвестный обьект
 
-# Функция алгоритма "Нега-Макс"
-def negamax(board, depth, maximizing_player, player):
-    if depth == 0 or is_win(board, player=player) == (-1 or 1):
-        return is_win(board, player=player)
+def minimax(matrix, depth, is_maximizing, player):
+    if player == 'X':
+        ai = '0'
+    else:
+        ai = 'X'
+    scores = {ai: 1, player: -1, 'tie': 0}
 
-    best_value = float('-inf') if maximizing_player else float('inf')
-    moves = check_moves(board)
+    if is_win(matrix, ai):
+        return -1
+    elif is_win(matrix, player):
+        return 1
+    elif is_full(matrix):
+        return 0
 
-    for move in moves:
-        make_move(board, move, player=player)
-        value = -negamax(board, depth - 1, not maximizing_player, player=player)
-        undo_move(board, move)
+    if is_maximizing:
+        max_eval = -float('inf')
+        for move in get_available_moves(matrix):
+            matrix[move] = player
+            eval = minimax(matrix, depth + 1, False)
+            matrix[move] = ' '
+            max_eval = max(max_eval, eval)
+        return max_eval
+    else:
+        min_eval = float('inf')
+        for move in check_moves(matrix):
+            matrix[move] = ai
+            eval = minimax(matrix, depth + 1, True)
+            matrix[move] = ' '
+            min_eval = min(min_eval, eval)
+        return min_eval
 
-        if maximizing_player:
-            best_value = max(best_value, value)
-        else:
-            best_value = min(best_value, value)
-    return best_value
 
-# Функция поиска лучшего хода с помощью Нега-Макса
-def find_best_move(board, player):
+def find_best_move(matrix, player):
     best_move = None
-    best_value = float('-inf')
-    moves = check_moves(board)
+    best_eval = -float('inf')
 
-    for move in moves:
-        make_move(board, move, player=player)
-        value = -negamax(board, depth=3, maximizing_player=False, player=player)
-        undo_move(board, move)
-        if value > best_value:
-            best_value = value
+    for move in check_moves(matrix):
+        matrix[move] = player
+        eval = minimax(matrix, 2, False, player)
+        matrix[move] = ' '
+
+        if eval > best_eval:
+            best_eval = eval
             best_move = move
 
     return best_move
@@ -119,14 +144,16 @@ if __name__ == "__main__":
     O - Ноль/Нолик/Кружок
     X - Крест/Крестик/Икс
     ? - В этом слоте/ячейке/месте на поле ничего не указано
-    """)
-    matrix = matrix_input()
-    player = input("Введи за кого вы играте (СИМВОЛОМ) X/O: ")
+    """) # Приветствие
+    matrix = matrix_input() # Ввод игрового поля
+    print(get_matrix_headers(matrix))
+    player = input("\nВведи за кого вы играте (СИМВОЛОМ) X/O: ")
+    print(is_win(matrix, player))
 
     if is_win(matrix, player) != 0:
-        print("Невозможно сделать следующий ход")
+        print("Невозможно сделать следующий ход\n")
     else:
-        print("Координаты лучшего хода:", *find_best_move(matrix, player), "\n")
+        print("Координаты лучшего хода:", find_best_move(matrix, player), "\n")
         best_i, best_j = find_best_move(matrix, player)
         matrix[best_i][best_j] = player
 
