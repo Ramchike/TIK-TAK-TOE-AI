@@ -119,9 +119,10 @@ def find_best_move(matrix, player):
     best_eval = -float('inf')
 
     for move in check_moves(matrix):
-        matrix[move] = player
+        i, j = move
+        matrix[i][j] = player
         eval = minimax(matrix, 2, False, player)
-        matrix[move] = ' '
+        matrix[i][j] = '?'
 
         if eval > best_eval:
             best_eval = eval
@@ -153,8 +154,8 @@ if __name__ == "__main__":
     if is_win(matrix, player) != 0:
         print("Невозможно сделать следующий ход\n")
     else:
-        print("Координаты лучшего хода:", find_best_move(matrix, player), "\n")
         best_i, best_j = find_best_move(matrix, player)
+        print("Координаты лучшего хода:", best_i, best_j, "\n")
         matrix[best_i][best_j] = player
 
     print("Итоговое поле:\n")
