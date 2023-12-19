@@ -8,12 +8,10 @@ def get_matrix_headers(matrix:list) -> tuple:
         # ДИАГОНАЛИ
         (matrix[0][0], matrix[1][1], matrix[2][2]), # Главная диагональ
         (matrix[0][2], matrix[1][1], matrix[2][0]), # Побочная диагональ
-
         # СТРОКИ
         (matrix[0][0], matrix[0][1], matrix[0][2]), # 1 строка
         (matrix[1][0], matrix[1][1], matrix[1][2]), # 2 строка
         (matrix[2][0], matrix[2][1], matrix[2][2]), # 3 строка
-
         # СТОЛБЦЫ
         (matrix[0][0], matrix[1][0], matrix[2][0]), # 1 столбец
         (matrix[0][1], matrix[1][1], matrix[2][1]), # 2 столбец
@@ -31,7 +29,7 @@ def is_valid_matrix(matrix:list) -> bool:
     """
     Функция проверки поля крестики нолики по правилам игры.
     """
-    # Если на поле кто-то победил или разница между символами X/O > 1, то функция посчитает поле не играбельным.
+    # Если на поле кто-то победил или разница между символами X/O > 1, то функция посчитает поле неиграбельным.
     return not (is_win(matrix, 'X') or is_win(matrix, 'O') or abs(matrix.count('X') - matrix.count('O')) > 1)
 
 def game_result(matrix:list, player:chr) -> str:
