@@ -2,7 +2,7 @@ import random
 
 def get_matrix_headers(matrix:list) -> tuple:
     """
-    Функция для структурного разбора поля на: Диагонали, строки, поля
+    Функция структурного разбора поля на: Диагонали, строки, поля
     """
     return (
         # ДИАГОНАЛИ
@@ -24,31 +24,52 @@ def is_win(matrix:list, player:str) -> bool:
     """
     Функция проверки победы Игрока/Компьютера.
     """
-    return tuple(player*3) in get_matrix_headers(matrix)
+    # Проверяет есть ли комбинация типо OOO или XXX (player * 3) в диагонале/строке/столбце поля.
+    return tuple(player * 3) in get_matrix_headers(matrix)
 
 def is_valid_matrix(matrix:list) -> bool:
     """
     Функция проверки поля крестики нолики по правилам игры.
     """
-    return not (is_win(matrix, 'X') or is_win(matrix, 'O') or abs(matrix.count('X') - matrix.count('O')) >= 2)
+    # Если на поле кто-то победил или разница между символами X/O > 1, то функция посчитает поле не играбельным.
+    return not (is_win(matrix, 'X') or is_win(matrix, 'O') or abs(matrix.count('X') - matrix.count('O')) > 1)
+
+def game_result(matrix:list, player:chr) -> str:
+    """
+    Функция определения результата на поле
+    """
+    # Определяем игрока и врага.
+    if player == 'X':
+        enemy = 'O'
+    else:
+        enemy = 'X'
+    # Проходимся по разным условиям, которые соответствуют правилам игры.
+    if is_win(matrix, player):
+        return f"Выигрыш, победили {player}."
+    elif is_win(matrix, enemy):
+        return f"Проигрыш, победили {enemy}."
+    elif not matrix.count('?'):
+        return "Ничья, никто не выбил нужную комбинацию."
+    else:
+        return "Результата нет, игра продолжается."
 
 def matrix_input() -> list:
     """
-    Функция для ввода игрового поля.
+    Функция ввода игрового поля.
     """
     matrix = []
-    # Ввод поля при помощи цикла.
+    # Ввод поля построчно.
     for i in range(3):
         matrix.append(list(input(f"Введите символы X O ? без пробелов в {i+1} строке:\n")))
     print("Полученное поле:\n")
-    # Вывод поля при помощи цикла.
+    # Вывод поля построчно.
     for line in matrix:
         print(*line)
     return matrix
 
 def make_move(matrix:list, player:chr, move:tuple) -> list:
     """
-    Функция для выполнения хода на поле.
+    Функция выполнения хода на поле.
     """
     i, j = move
     matrix[i][j] = player
@@ -56,7 +77,7 @@ def make_move(matrix:list, player:chr, move:tuple) -> list:
 
 def del_move(matrix:list, move:tuple) -> list:
     """
-    Функция для отмены хода на поле.
+    Функция отмены хода на поле.
     """
     i, j = move
     matrix[i][j] = '?'
@@ -64,10 +85,10 @@ def del_move(matrix:list, move:tuple) -> list:
 
 def check_moves(matrix:list) -> list:
     """
-    Функция для генерации возможных ходов на поле.
+    Функция поиска возможных ходов на поле.
     """
     moves = []
-    # Проход по всем клеткам и поиск возможных ходов.
+    # Проход по всем клеткам поля и поиск возможных ходов.
     for i in range(3):
         for j in range(3):
             if matrix[i][j] == '?':
@@ -78,25 +99,25 @@ def find_best_move(matrix:list, player:chr) -> tuple:
     """
     Функция поиска координаты лучшего хода.
     """
+    # Определяем игрока и врага для дальнешего определения результата.
     if player == 'X':
         enemy = 'O'
     else:
         enemy = 'X'
     moves = check_moves(matrix)
-    # Проверка на возможную победу.
+    # Проверки на возможную победу.
     for move in moves:
         matrix = make_move(matrix, player, move)
         if is_win(matrix, player):
             return move
         matrix = del_move(matrix, move)
-    # Проверка на возможный проигрыш.
+    # Проверки на возможный проигрыш.
     for move in moves:
         matrix = make_move(matrix, enemy, move)
-        matrix_output(matrix)
         if is_win(matrix, enemy):
             return move
         matrix = del_move(matrix, move)
-    # Если мы не смогли найти победу или проигрыш, то делаем рандомный возможных ход.
+    # Если мы не смогли найти победу или проигрыш, то делаем рандомно один из возможных ходов.
     return random.choice(check_moves(matrix))
 
 if __name__ == '__main__':
@@ -116,16 +137,18 @@ if __name__ == '__main__':
        X - Крест/Крестик/Икс.
        ? - В этом слоте/ячейке/месте на поле ничего не указано.
        """)
-    matrix = matrix_input() # Ввод матрицы
-    # Проверка поля на верность
+    # Ввод матрицы и символа игрока.
+    matrix = matrix_input()
+    player = input("\nЗа кого вы играете? O/X (введите один символ): ")
+    # Проверка поля на верность/конец игры.
     if is_valid_matrix(matrix):
-        player = input("\nЗа кого вы играете? O/X (введите один символ): ")
         i, j = find_best_move(matrix, player)
         print("Координаты лучшего хода:", i, j, "\n")
         matrix[i][j] = player
     else:
         print("\nПоле заполнено не по правилам/Игра уже закончилась.\n")
     print("Итоговое поле:\n")
-    # Вывод поля
+    # Вывод поля и результата на нем.
     for line in matrix:
         print(*line)
+    print(f"\nИтог: {game_result(matrix, player)}.")
