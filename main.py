@@ -8,10 +8,12 @@ def get_matrix_headers(matrix:list) -> tuple:
         # ДИАГОНАЛИ
         (matrix[0][0], matrix[1][1], matrix[2][2]), # Главная диагональ
         (matrix[0][2], matrix[1][1], matrix[2][0]), # Побочная диагональ
+
         # СТРОКИ
         (matrix[0][0], matrix[0][1], matrix[0][2]), # 1 строка
         (matrix[1][0], matrix[1][1], matrix[1][2]), # 2 строка
         (matrix[2][0], matrix[2][1], matrix[2][2]), # 3 строка
+
         # СТОЛБЦЫ
         (matrix[0][0], matrix[1][0], matrix[2][0]), # 1 столбец
         (matrix[0][1], matrix[1][1], matrix[2][1]), # 2 столбец
@@ -29,7 +31,7 @@ def is_valid_matrix(matrix:list) -> bool:
     """
     Функция проверки поля крестики нолики по правилам игры.
     """
-    # Если на поле кто-то победил или разница между символами X/O > 1, то функция посчитает поле неиграбельным.
+    # Если на поле кто-то победил или разница между символами X/O > 1, то функция посчитает поле не играбельным.
     return not (is_win(matrix, 'X') or is_win(matrix, 'O') or abs(matrix.count('X') - matrix.count('O')) > 1)
 
 def game_result(matrix:list, player:chr) -> str:
@@ -46,7 +48,7 @@ def game_result(matrix:list, player:chr) -> str:
         return f"Выигрыш, победили {player}."
     elif is_win(matrix, enemy):
         return f"Проигрыш, победили {enemy}."
-    elif not matrix.count('?'):
+    elif not any('?' in line for line in matrix):
         return "Ничья, никто не выбил нужную комбинацию."
     else:
         return "Результата нет, игра продолжается."
@@ -144,9 +146,9 @@ if __name__ == '__main__':
         print("Координаты лучшего хода:", i, j, "\n")
         matrix[i][j] = player
     else:
-        print("\nПоле заполнено не по правилам/Игра уже закончилась.\n")
+        print("\nПоле заполнено не по правилам / Игра уже закончилась.\n")
     print("Итоговое поле:\n")
     # Вывод поля и результата на нем.
     for line in matrix:
         print(*line)
-    print(f"\nИтог: {game_result(matrix, player)}.")
+    print(f"\nИтог: {game_result(matrix, player)}")
