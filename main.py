@@ -32,7 +32,7 @@ def is_valid_matrix(matrix:list) -> bool:
     Функция проверки поля крестики нолики по правилам игры.
     """
     # Если на поле кто-то победил или разница между символами X/O > 1, то функция посчитает поле не играбельным.
-    return not (is_win(matrix, 'X') or is_win(matrix, 'O') or abs(matrix.count('X') - matrix.count('O')) > 1)
+    return not (is_win(matrix, 'X') or is_win(matrix, 'O') or abs(matrix.count('X') - matrix.count('O')) > 1 or not any('?' in line for line in matrix))
 
 def game_result(matrix:list, player:chr) -> str:
     """
